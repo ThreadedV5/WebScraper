@@ -1,16 +1,50 @@
 package org.example
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
+import org.jsoup.select.Elements
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
+
 fun main() {
-    val name = "Kotlin"
-    //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-    // to see how IntelliJ IDEA suggests fixing it.
-    println("Hello, " + name + "!")
+    val url: String = "https://asuracomic.net/series/bad-born-blood-00b103d8/chapter/53"
+    val doc: Document = fetchDocument(url)
+    val products = mutableListOf<Product>()
 
-    for (i in 1..5) {
-        //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-        // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-        println("i = $i")
+    val productElements: Elements = doc.select("img")
+    println("")
+    for (element in productElements) {
+        val product = Product()
+        product.url   = element.attr("src")
+        // product.image = productElement.selectFirst("img")?.attr("src")
+        // product.name  = productElement.selectFirst("h2")?.text()
+        // product.price = productElement.selectFirst("span")?.text()
+        products.add(product)
     }
+
+    println(products)
+}
+
+fun fetchDocument(url: String): Document {
+    val doc: Document? = runCatching {
+        Jsoup
+            .connect(url)
+            .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36")
+            .header("Accept-Language", "*")
+            .get();
+    }.getOrNull()
+    return doc!!
+}
+
+open class Product() {
+    var url: String? = null
+    var image: String? = null
+    var name: String? = null
+    var price: String? = null
+
+    override fun toString(): String {
+        return ("{ \"url\":\"" + url + "\", "
+                + " \"image\": \"" + image + "\", "
+                + "\"name\":\"" + name + "\", "
+                + "\"price\": \"" + price + "\" }")
+    }
+
 }
